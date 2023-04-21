@@ -1,22 +1,35 @@
 package main
+
 import (
-	
-	"github.com/gin-gonic/gin"
+    "os"
+
+    middleware "github.com/degarzonm/go-back-portfolio/middleware"
+    routes "github.com/degarzonm/go-back-portfolio/routes"
+
+    "github.com/gin-gonic/gin"
+	_ "github.com/heroku/x/hmetrics/onload"
 )
 
 func main() {
-	// Initialize the MongoDB connection
-	database.Connect()
+    
 
-	// Set up the Gin Gonic server
-	r := gin.Default()
+    router := gin.New()
+    router.Use(gin.Logger())
+    routes.UserRoutes(router)
 
-	// Use JWT authentication middleware
-	r.Use(middleware.JWTAuthMiddleware())
+    router.Use(middleware.Authentication())
 
-	// Set up the routes
-	controllers.SetUpRoutes(r)
+    // API-2
+    router.GET("/api-1", func(c *gin.Context) {
 
-	// Run the server
-	r.Run(":8080") 
+        c.JSON(200, gin.H{"success": "Access granted for api-1"})
+
+    })
+
+    // API-1
+    router.GET("/api-2", func(c *gin.Context) {
+        c.JSON(200, gin.H{"success": "Access granted for api-2"})
+    })
+
+    router.Run(os.Getenv("PORT"))
 }
