@@ -16,7 +16,7 @@ func UserRegistryRoutes(incomingRoutes *gin.Engine) {
 
 func SoldierRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.GET("/my-fort", controller.GetMyFort())
-	//incomingRoutes.GET("/my-commander", controller.GetMyCommander())
+	incomingRoutes.GET("/my-commander", controller.GetMyCommander())
 	//incomingRoutes.GET("/today-agenda", controller.GetAgendaOfDay())
 }
 

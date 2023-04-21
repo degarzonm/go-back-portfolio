@@ -46,7 +46,6 @@ func GetUserByID(userID string) (*models.Soldier, error) {
 	return &soldier, nil
 }
 
-
 // HashPassword is used to encrypt the password before it is stored in the DB
 func HashPassword(password string) string {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
@@ -71,7 +70,7 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 	return check, msg
 }
 
-// CreateUser is the api used to tget a single user
+// CreateUser is the api used to get a single user
 func SignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -173,6 +172,56 @@ func Login() gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, responseData)
 
+	}
+}
+
+func GetMyCommander() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+
+		userID := c.MustGet("user_id").(string)
+		user, err := GetUserByID(userID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error getting User: %v", err)})
+			return
+		}
+
+		// Check if the user has at least one fort
+		if len(user.FortIDs) == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User is not associated with any fort"})
+			return
+		}
+
+		// Get the first fort in the user's FortIDs list
+		firstFortID := user.FortIDs[0]
+		fortFilter := bson.M{"fort_id": firstFortID}
+		var fort models.Fort
+		fortErr := FortCollection.FindOne(ctx, fortFilter).Decode(&fort)
+		if fortErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error finding Fort: %v", fortErr)})
+			return
+		}
+
+		// Get the commander's user data
+		commanderFilter := bson.M{"user_id": fort.Commander}
+		var commander models.Soldier
+		commanderErr := SoldierCollection.FindOne(ctx, commanderFilter).Decode(&commander)
+		if commanderErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error finding Commander: %v", commanderErr)})
+			return
+		}
+		defer cancel()
+
+		// Remove sensitive data from the commander object
+		
+		responseData := models.SoldierInfoResponse{
+			UserID:       commander.UserID,
+			Name:         commander.Name,
+			City:         commander.City,
+			FortIDs:      commander.FortIDs,
+		}
+
+		c.JSON(http.StatusOK, responseData)
 	}
 }
 

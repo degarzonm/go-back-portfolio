@@ -25,3 +25,12 @@ type SoldierLoginResponse struct {
 	Token        *string  `json:"token"`
 	RefreshToken *string  `json:"refresh_token"`
 }
+
+type SoldierInfoResponse struct {
+	UserID       *string  `json:"user_id"`
+	Name         *string  `json:"name"`
+	City         *string  `json:"city"`
+	FortIDs      []string `json:"fort_ids"`
+}
+
+
