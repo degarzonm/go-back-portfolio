@@ -15,21 +15,14 @@ func main() {
 
     router := gin.New()
     router.Use(gin.Logger())
-    routes.UserRoutes(router)
+    routes.UserRegistryRoutes(router)
 
     router.Use(middleware.Authentication())
 
-    // API-2
-    router.GET("/api-1", func(c *gin.Context) {
-
-        c.JSON(200, gin.H{"success": "Access granted for api-1"})
-
-    })
-
-    // API-1
-    router.GET("/api-2", func(c *gin.Context) {
-        c.JSON(200, gin.H{"success": "Access granted for api-2"})
-    })
+	routes.SoldierRoutes(router)
+	routes.OfficerRoutes(router)
+    routes.GeneralRoutes(router)
+	routes.RecruiterRoutes(router)
 
     router.Run(os.Getenv("PORT"))
 }

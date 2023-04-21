@@ -26,7 +26,7 @@ func Authentication() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("uid", claims.Uid)
+		c.Set("user_id", claims.UserID)
 		c.Set("name", claims.Name)
 		c.Set("city", claims.City)
 
@@ -34,3 +34,4 @@ func Authentication() gin.HandlerFunc {
 
 	}
 }
+
